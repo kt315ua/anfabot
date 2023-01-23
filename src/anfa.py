@@ -1,24 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=unused-argument, wrong-import-position
-# This program is dedicated to the public domain under the CC0 license.
-
-"""
-Simple Bot to reply to Telegram messages.
-
-First, a few handler functions are defined. Then, those functions are passed to
-the Application and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
-"""
 
 import logging
 import time
 import settings
+import language
 from telegram import __version__ as TG_VER
 
 try:
@@ -36,7 +22,6 @@ from telegram import Update, constants
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ChatMemberHandler
 
 # Enable logging
-
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -44,9 +29,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 token = settings.token
-
-cyrrilic_ru = settings.cyrrilic_ru
-cyrrilic_ua = settings.cyrrilic_ua
 
 
 def check_allowed_chats(chat_type, member_chat_id, username):
@@ -113,29 +95,22 @@ async def check_for_allowed_chats(update: Update, context: ContextTypes.DEFAULT_
 
 
 async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
+    chat_id = update.message.chat_id
+    message_id = update.message.message_id
+    user_id = update.message.from_user.id
+    user_name = update.message.from_user.username
     text = update.message.text if update.message.text else update.message.caption
     need_remove = False
-    chat_id = None
-    message_id = None
-    user_id = None
-    user_name = None
-    if text:
-        for c in cyrrilic_ru:
-            result = text.find(str(c))
-            if result != -1:
-                need_remove = True
-                chat_id = update.message.chat_id
-                message_id = update.message.message_id
-                user_id = update.message.from_user.id
-                user_name = update.message.from_user.username
-                break
+
+    if len(text) >= 3:
+        if language.is_lang("ru", text):
+            need_remove = True
 
     if need_remove:
         user = user_name if user_name else user_id
-
         await update.message.delete()
-        await update.effective_chat.send_message(f"Повідомлення користувача {user} з російськомовними символами видалено!")
+        await update.effective_chat.send_message(f"Повідомлення користувача {user} видалено!\n"
+                                                 f"Використання 'росіянської' заборонено. Verified with Google API")
 
 
 def main() -> None:

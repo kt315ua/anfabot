@@ -43,6 +43,9 @@ RUN cd ${APP_DIR} && \
     rm -rf ${BOT_HOME_DIR}/.cache && \
     find ${APP_DIR} -iname '.git*' -print0 | xargs -0 -r -t rm -rf
 
+# HOTFIX for googletrans-py lib 4.0.0
+RUN sed -i -e '1 s/^/from __future__ import annotations\n\n/;' /srv/.local/lib/python3.8/site-packages/googletrans/models.py
+
 ################################################################################
 
 FROM base AS app
