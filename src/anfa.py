@@ -107,10 +107,11 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             need_remove = True
 
     if need_remove:
-        user = user_name if user_name else user_id
+        user = f"@{user_name}" if user_name else user_id
         await update.message.delete()
         await update.effective_chat.send_message(f"Повідомлення користувача {user} видалено!\n"
-                                                 f"Використання 'росіянської' заборонено. Verified with Google API")
+                                                 f"Використання 'росіянської' заборонено.\n"
+                                                 f"Перекладач: https://translate.google.com.ua/")
 
 
 def main() -> None:
