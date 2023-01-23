@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import logging
 import settings
 from googletrans import Translator
@@ -17,13 +18,14 @@ def check_ru_chars(text):
         "Э", "э",
         "Ъ", "ъ",
     ]
-    detect_points = 0
+    matches = 0
     try:
         for c in cyrrilic_ru:
+            count = len(re.findall(c, text))
             result = text.find(str(c))
             if result != -1:
-                detect_points += 1
-        if detect_points >= 2:
+                matches += count
+        if matches >= 2:
             return "ru"
         else:
             return ""
