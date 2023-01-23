@@ -99,6 +99,8 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     message_id = update.message.message_id
     user_id = update.message.from_user.id
     user_name = update.message.from_user.username
+    user_first_name = update.message.from_user.first_name
+    user_last_name = update.message.from_user.last_name
     text = update.message.text if update.message.text else update.message.caption
     need_remove = False
 
@@ -107,7 +109,17 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             need_remove = True
 
     if need_remove:
-        user = f"@{user_name}" if user_name else user_id
+        if user_name:
+            user = f"@{user_name}"
+        elif user_first_name and user_last_name:
+            user = f"'{user_first_name} {user_last_name}'"
+        elif user_first_name:
+            user = f"'{user_first_name}' (id: {user_id})"
+        elif user_last_name:
+            user = f"'{user_last_name}' (id: {user_id})"
+        else:
+            user = f"[{user_id}]"
+
         await update.message.delete()
         await update.effective_chat.send_message(f"Повідомлення користувача {user} видалено!\n"
                                                  f"Використання 'росіянської' заборонено.\n"
