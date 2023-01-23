@@ -32,7 +32,7 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"{TG_VER} version of this example, "
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
-from telegram import Update
+from telegram import Update, constants
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ChatMemberHandler
 
 # Enable logging
@@ -44,10 +44,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 token = settings.token
-owner_username = settings.owner_username
 
 cyrrilic_ru = settings.cyrrilic_ru
 cyrrilic_ua = settings.cyrrilic_ua
+
+
+def check_allowed_chats(chat_type, member_chat_id, username):
+    is_allowed = False
+
+    if chat_type is constants.ChatType.SUPERGROUP:
+        print(f"> SUPERGROUP CHAT CHECK: {member_chat_id}")
+        if str(member_chat_id) in settings.allowed_chat_ids():
+            is_allowed = True
+            print(f">> CHAT is ALLOWED: {member_chat_id}")
+
+    if chat_type is constants.ChatType.PRIVATE:
+        print(f"> PRIVATE CHAT CHECK: {member_chat_id}")
+        if str(username) == settings.owner_username:
+            is_allowed = True
+            print(f">> CHAT is ALLOWED: {member_chat_id}")
+
+    if not is_allowed:
+        print(f">>> CHAT ID {member_chat_id} is not allowed")
+    else:
+        print(f">>> CHAT ID {member_chat_id} is allowed")
+
+    return is_allowed
 
 
 # Handlers
@@ -63,32 +85,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def show_chat_id(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = str(update.message.chat_id)
-    await update.message.reply_text(f"Current chat_id is: {chat_id}")
+    print(f"Show current chat id: {update.message.chat_id}")
+    await update.message.reply_text(f"Current chat_id is: {update.message.chat_id}")
 
 
 async def show_allowed_chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    print(settings.allowed_chat_ids())
-    chat_id = str(settings.allowed_chat_ids())
-    await update.message.reply_text(f"Allowed chat ids: {chat_id}")
+    print(f"Show allowed chats for chat id: {update.effective_chat.id}")
+    is_allowed = check_allowed_chats(constants.ChatType.PRIVATE,
+                                  update.effective_chat.id,
+                                  update.effective_chat.username)
+    if is_allowed:
+        chat_id = str(settings.allowed_chat_ids())
+        await update.message.reply_text(f"Allowed chat ids: {chat_id}")
+    else:
+        await update.message.reply_text(f"You have no rights to get private data!")
 
 
 async def check_for_allowed_chats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    is_allowed = False
-    if str(update.my_chat_member.chat.id) in settings.allowed_chat_ids():
-        is_allowed = True
-        print("CHAT is ALLOWED")
-
-    if str(update.effective_chat.username) == owner_username:
-        is_allowed = True
-        print("CHAT with OWNER")
-
+    print(f"Check allowed member chat: {update.my_chat_member.chat.id}")
+    is_allowed = check_allowed_chats(update.effective_chat.type,
+                                  update.my_chat_member.chat.id,
+                                  update.effective_chat.username)
     if not is_allowed:
         await update.effective_chat.send_message(f"Chat id {update.my_chat_member.chat.id} is not allowed!")
         time.sleep(1)
         await update.effective_chat.leave()
-    else:
-        print(f"CHAT ID {update.my_chat_member.chat.id} is allowed")
 
 
 async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
