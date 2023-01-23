@@ -1,0 +1,25 @@
+# This docker-compose file is used in production. For local development
+# run_backend.py and run_server_rpc.py script are executed in the python venv.
+
+version: "3.9"
+
+services:
+  anfabot:
+    image: anfabot:${TAG}
+    build:
+      dockerfile: docker/Dockerfile
+      context: .
+    container_name: anfabot
+    hostname: anfabot
+    environment:
+      - TAG=${TAG}
+      - TOKEN=${TOKEN}
+      - OWNER=${OWNER}
+    volumes:
+      - "${LOCAL_DATA_PATH}:/srv/app/data"
+    networks:
+      - anfabot
+
+networks:
+    anfabot:
+      name: anfabot

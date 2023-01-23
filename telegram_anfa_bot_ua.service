@@ -1,0 +1,24 @@
+[Unit]
+Description=ANFA_BOT: https://t.me/xxxxxx_bot
+Requires=docker.service
+BindsTo=docker.service
+Conflicts=shutdown.target reboot.target halt.target
+
+[Service]
+#Restart=always
+Restart=on-failure
+RestartSec=30
+TimeoutSec=300
+
+Group=docker
+
+ExecStartPre=-/usr/local/bin/docker-compose -f /home/admin/github/anfabot/docker-compose.yml kill
+ExecStartPre=-/usr/local/bin/docker-compose -f /home/admin/github/anfabot/docker-compose.yml rm
+ExecStartPre=-/usr/local/bin/docker-compose -f /home/admin/github/anfabot/docker-compose.yml rm -f
+
+ExecStart=/usr/local/bin/docker-compose -f /home/admin/github/anfabot/docker-compose.yml up --force-recreate --no-deps
+
+ExecStop=/usr/local/bin/docker-compose -f /home/admin/github/anfabot/docker-compose.yml stop
+
+[Install]
+WantedBy=multi-user.target
