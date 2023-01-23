@@ -104,9 +104,11 @@ async def check_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     text = update.message.text if update.message.text else update.message.caption
     need_remove = False
 
-    if len(text) >= 3:
-        if language.is_lang("ru", text):
-            need_remove = True
+    # Text can be None
+    if text:
+        if len(text) >= 3:
+            if language.is_lang("ru", text):
+                need_remove = True
 
     if need_remove:
         if user_name:
