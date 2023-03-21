@@ -1,5 +1,6 @@
 python-telegram-bot[all]==20.0a4
 granslate==3.4.1
 langdetect==1.0.9
+pycld2==0.41
 asyncio
 nest_asyncio

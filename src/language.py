@@ -7,6 +7,7 @@ import settings
 from granslate import Translator
 import asyncio
 import langdetect
+import pycld2 as cld2
 
 import nest_asyncio
 nest_asyncio.apply()
@@ -64,6 +65,27 @@ def check_by_langdetect(text):
         return ""
 
 
+def check_by_pycld2(text):
+    try:
+        langs_score = {}
+        isReliable, textBytesFound, details = cld2.detect(text, bestEffort=True)
+        if isReliable:
+            for lang_det in details:
+                # convert list of lists:
+                #   "(('RUSSIAN', 'ru', 98, 328.0), ('Unknown', 'un', 0, 0.0), ('Unknown', 'un', 0, 0.0))"
+                # to dict:
+                #   "{'ru': 98, 'un': 0}"
+                langs_score[lang_det[1]] = lang_det[2]
+            # return language with max matching srore
+            result = max(langs_score, key=langs_score.get)
+            return str(result)
+        else:
+            return ""
+    except Exception as Err:
+        print(f"langdetect: language detect error, {Err}")
+        return ""
+
+
 def is_lang(target_lang, text):
     detect_points = 0
 
@@ -85,6 +107,12 @@ def is_lang(target_lang, text):
     if lang == target_lang:
         detect_points += 1
 
+    # Check by pycld2
+    lang = check_by_pycld2(text)
+    # print(f"pycld2: {lang}")
+    if lang == target_lang:
+        detect_points += 1
+
     # print(f"Language: 'ru' points = {detect_points}")
-    if detect_points >= 2:
+    if detect_points >= 3:
         return True
