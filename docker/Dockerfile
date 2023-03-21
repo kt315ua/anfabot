@@ -19,6 +19,9 @@ ENV BOT_PROJECT="${BOT_PROJECT}" \
     DEBIAN_FRONTEND=noninteractive \
     APT_OPTS="-q=2 --no-install-recommends --yes"
 
+RUN apt update
+RUN apt install -y build-essential
+
 RUN groupadd --gid $BOT_GROUP $BOT_PROJECT \
     && useradd --uid $BOT_USER --gid $BOT_GROUP -m $BOT_PROJECT
 
