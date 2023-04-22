@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 token = str(os.getenv("TOKEN"))
 owner_username = str(os.getenv("OWNER"))
 
-google_match_threshold = 0.98
+google_match_threshold = 0.20
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 data_path = f"{SCRIPT_PATH}/data"

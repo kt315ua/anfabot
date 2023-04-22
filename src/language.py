@@ -4,9 +4,12 @@
 import re
 import logging
 import settings
-from googletrans import Translator
-from googletrans.models import Detected
+from granslate import Translator
+import asyncio
 import langdetect
+
+import nest_asyncio
+nest_asyncio.apply()
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,8 @@ def check_ru_chars(text):
 def check_by_google(text):
     try:
         translator = Translator()
-        result = translator.detect(text)
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(translator.detect(text))
         lang = result.lang
         match = result.confidence
         if match is None:

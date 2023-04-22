@@ -1,3 +1,5 @@
-python-telegram-bot[all]==20.0
-googletrans-py==4.0.0
+python-telegram-bot[all]==20.0a4
+granslate==3.4.1
 langdetect==1.0.9
+asyncio
+nest_asyncio
