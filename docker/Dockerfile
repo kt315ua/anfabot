@@ -26,6 +26,11 @@ RUN groupadd --gid $BOT_GROUP $BOT_PROJECT \
 RUN chown -cR "$BOT_PROJECT":"$BOT_PROJECT" ${BOT_HOME_DIR} && \
     usermod -d ${BOT_HOME_DIR} ${BOT_PROJECT}
 
+RUN apt update && \
+    apt install -y build-essential python3-dev gcc && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
 ################################################################################
 
 FROM base AS builder
